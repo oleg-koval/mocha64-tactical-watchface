@@ -258,11 +258,131 @@ failing test. That's the difference between a documented decision and an enforce
 - [x] Which data fields → recovery/readiness + activity/goals
 - [x] What "Hermes" is → my TG bot; likely Phase 2's off-watch store
 - [ ] Verify the 4×4×4 palette lattice hypothesis against the SDK profile
-- [ ] Exact Fenix 6 Pro memory ceiling from the SDK device profile (don't guess)
-- [ ] Whether `SensorHistory` actually exposes Body Battery + stress on this device
+- [ ] Confirm BODY/STRESS populate on the wrist after the SensorHistory fix
+- [x] Fenix 6 Pro memory ceiling → **107.8 kB**; the HUD uses 13.5 kB (~12%)
+- [~] `SensorHistory` on hardware: all reads returned nothing. Suspected cause is
+      null data in the newest bucket; fix shipped, **unverified until the next photo**
 - [ ] Whether Training Status / Load / VO2max are reachable at all (Phase 2 blocker)
 - [ ] How to publish to a DB-backed blog
 - [ ] Disambiguate Hermes-the-bot from Hermes-the-agent-harness
+
+## 2026-07-25 — Day 0, part 4: it compiles, it ships, the hardware disagrees
+
+### The toolchain fell in about twenty minutes
+The blocker I'd framed as "you must install the SDK" turned out to be mostly
+automatable:
+
+- `openjdk` was already installed, just keg-only. No sudo, no reinstall — it only
+  needed to be on PATH. My "unlinked JDK" framing was right about the symptom and
+  wrong about the fix.
+- The SDK manifest is **public**: `developer.garmin.com/downloads/connect-iq/sdks/sdks.json`.
+  Pulled 9.2.0 (240 MB .dmg) straight down, mounted, installed.
+- Generated the developer key with `openssl`.
+- Only the **device profile** genuinely needed a human: it comes through the SDK
+  Manager GUI behind a Garmin account login. The old public endpoint,
+  `monkeynet.garmin.com`, is dead — NXDOMAIN, doesn't even resolve.
+
+**Article angle #11:** the boundary between "the agent can do this" and "you must do
+this" wasn't where either of us guessed. It wasn't the 240 MB download; it was one
+OAuth login.
+
+### Two Makefile bugs that only a real toolchain reveals
+1. `monkeyc` lives under `~/Library/Application Support/...` — a path **with a space**.
+   Make's direct-exec path lookup mishandles it, so PATH alone silently fails with
+   "No such file or directory" while `command -v` says it's fine. Fixed by invoking
+   absolute quoted paths.
+2. `make lint` used `-o /dev/null`. The compiler caches bitmap resources next to the
+   output path and dies when that isn't a real file. Lint now writes to `bin/.lint.prg`.
+
+Neither is guessable from docs. Both cost minutes once you can actually run the thing.
+
+### The compiler taught me the API
+First compile: one hard error, ten warnings — all real.
+
+- `Symbol`-based dispatch in `Sensors.mc` (`SensorHistory has method`) wouldn't
+  type-check. Rewrote it explicit per-metric. My "risky" flag on it was correct.
+- `restingHeartRate` isn't on `ActivityMonitor.Info` for every device. Needed a
+  `UserProfile` fallback — **which required a new manifest permission the compiler
+  refused to build without.** I would not have found that by reading.
+
+**Article angle #12:** three hours of careful reasoning about an API, then thirty
+seconds of real compiler output correcting it. The type checker was a better teacher
+than the documentation.
+
+### The number I'd refused to guess
+Simulator status bar: **13.5 / 107.8 kB**. The fenix 6 Pro watch-face memory ceiling
+is ~108 kB and the full HUD uses about 12%.
+
+Which means the argument I used to talk myself out of the field abstraction — "memory
+is the binding constraint" — **was wrong**. There's ~94 kB free. The abstraction was
+affordable all along.
+
+**Article angle #13 — the honest one:** the agent's most confident architectural
+argument was based on an unmeasured assumption, and it held for hours because it
+*sounded* like engineering judgement. Measuring took one glance at a status bar.
+
+### Then the photo arrived, and the simulator turned out to be a liar
+Got it on the watch via the Connect IQ Store (apps under review are downloadable by
+their own author — that's the loophole that beat a dead USB cable). Photographed it in
+daylight. Four things the simulator had hidden:
+
+1. **`BODY --` and `STRESS --`.** Both showed values in the sim. On hardware, every
+   `SensorHistory` read failed — including the sparkline, which just wasn't there.
+   `HR` and `REST` worked, and those come from `Activity` and `UserProfile`. Cause:
+   I asked for a single sample, and the newest bucket can exist with **null data**
+   when the device hasn't computed it yet. The sim never reproduces that.
+2. **`KCA2339`** — a 4-digit calorie value right-aligned straight through its own
+   `KCAL` label. Invisible in the sim because sim calories were `0`.
+3. **"what is BB?"** — asked by me, the person who commissioned the thing. A label
+   needing decoding has already failed at a glance.
+4. **Everything grey-on-grey.**
+
+### The MIP insight — this is the best thing in the whole project
+Why "the brightness is not that good" was a *design* bug, not a settings problem:
+
+A transflective MIP panel has **no backlight**. Brightness is reflected ambient light,
+and a coloured pixel reflects only its own channel — a green pixel returns roughly a
+third of what white does.
+
+So colouring a value makes **the thing you read the dimmest thing on screen.** The face
+had green `88`, blue `92`, amber `35` sitting next to *brighter* grey labels. Exactly
+inverted. On a backlit simulator this is invisible; colour costs nothing there.
+
+Proved it rather than asserting it: rendered current vs proposed, then ran both through
+a simulated panel (convert to luminance, compress the range). The comparison is
+unambiguous and is going in the article.
+
+Fix: **luminance carries the data, colour carries the status.** Values white and a size
+larger; status moved to a small chip beside the label. Same information, none of the
+legibility cost.
+
+**Article angle #14 — the second thesis:** on a display without a backlight, colour is
+decoration you get for free, not a channel you can put information in. Every design
+instinct built on emissive screens inverts.
+
+Corollary caught in the same pass: a green "50%" battery. Colour spent on a healthy
+state teaches the eye to ignore colour. It's grey now, and only takes colour when
+something is actually wrong.
+
+### Pattern across the whole day
+Simulator said fine, hardware disagreed — **three separate times** (fonts,
+`restingHeartRate`, `SensorHistory` nulls). Every genuine design correction today came
+from a photo of a real wrist, not from iteration in a simulator.
+
+**Article angle #15:** the loop that mattered wasn't prompt → code → simulator. It was
+prompt → code → **wrist → photo → prompt**. The human's eyes were the test suite the
+project actually needed.
+
+### Where I wasted time (keeping this in)
+Burned three failed attempts screenshotting the simulator programmatically — window
+bounds, occlusion, focus races — when the app has File → Save Screenshot and I was
+sitting at the machine. The agent kept optimising a task it should have handed back
+after the first failure.
+
+**Article angle #16:** knowing when to hand a 5-second task back to the human is a
+skill the agent conspicuously lacked.
+
+---
 
 ## Running list of article angles
 1. Step one wasn't prompting, it was an unlinked JDK
@@ -276,3 +396,12 @@ failing test. That's the difference between a documented decision and an enforce
    layer had never run, and the green badge said otherwise
 9. The real engineering was deciding what *not* to automate (faked CI is worse than none)
 10. Design rationale that becomes a failing test stops being documentation
+11. The automatable/manual boundary wasn't where either of us guessed — not the
+    240 MB download, but one OAuth login
+12. Thirty seconds of real compiler output beat three hours of reasoning about the API
+13. The agent's most confident architectural argument rested on an unmeasured
+    assumption (memory), and sounded like judgement until someone measured
+14. **(second thesis)** On a backlit-free panel, colour is decoration you get free,
+    not a channel you can put information in — every emissive-screen instinct inverts
+15. The loop that mattered was prompt → code → **wrist → photo** → prompt
+16. The agent couldn't tell when to hand a 5-second task back to the human
