@@ -107,24 +107,41 @@ watchface, tactical, military, recovery, body battery, hud, data, catppuccin, mo
 
 ---
 
-## Screenshot
+## Images
 
-The store wants a device-resolution image (260x260 for fenix 6 Pro).
+Assets live in `docs/store/`.
 
-Easiest source is the simulator itself:
+### Hero image — 1440x720 (required)
 
-1. `make build`, then run it in the simulator.
-2. In the simulator: **File → Save Screenshot** (or the camera control in the
-   status bar). It writes the exact device resolution with no cropping needed.
+`docs/store/hero-1440x720.png` — ready to upload. Built entirely from the
+MOCHA-64 lattice colours, with the same bracket-and-rule language as the face,
+so the listing and the product look like one thing.
 
-Take at least one. Two or three showing different states (fresh Body Battery vs
-depleted, goal met vs in progress) makes a better listing.
+Regenerate after a layout change:
+
+```bash
+python3 docs/store/make-hero.py     # expects face-tight.png alongside it
+```
+
+### Screenshot — 260x260 (device resolution)
+
+`docs/store/mocha64-screenshot-260.png` is a **downscaled crop of the
+simulator's rendered watch image**, so it is soft. Good enough as a reference;
+replace it with a real one before submitting:
+
+1. `make build`, then run in the simulator.
+2. Simulator: **File → Save Screenshot** — writes exact device resolution, no
+   cropping, no resampling.
+
+Two or three showing different states (fresh Body Battery vs depleted, goal met
+vs in progress) makes a better listing than one.
 
 ---
 
 ## Before you submit
 
-- [ ] Screenshot attached
+- [ ] Hero image 1440x720 attached (docs/store/hero-1440x720.png)
+- [ ] Screenshot attached — regenerate a crisp one from the simulator first
 - [ ] Description proof-read
 - [ ] Developer key backed up — **losing it means you can never publish an update
       to this app under the same identity, and there is no recovery path**
