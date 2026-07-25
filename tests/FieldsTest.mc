@@ -25,7 +25,7 @@ module FieldsTest {
 
     (:test)
     function batteryColorFlagsHealthy(logger as Logger) as Boolean {
-        return Fields.batteryColor(80.0) == Palette.READY;
+        return Fields.batteryColor(80.0) == Palette.LABEL;
     }
 
     (:test)
@@ -38,7 +38,15 @@ module FieldsTest {
     // original bug -- half charge must read as healthy.
     (:test)
     function halfChargeIsHealthyNotCaution(logger as Logger) as Boolean {
-        return Fields.batteryColor(50.0) == Palette.READY;
+        return Fields.batteryColor(50.0) == Palette.LABEL;
+    }
+
+    // Colour is reserved for states worth interrupting a glance for.
+    (:test)
+    function onlyUnhealthyBatteryTakesColour(logger as Logger) as Boolean {
+        return Fields.batteryColor(90.0) == Palette.LABEL
+            && Fields.batteryColor(25.0) == Palette.CAUTION
+            && Fields.batteryColor(8.0) == Palette.STRAIN;
     }
 
     (:test)

@@ -32,24 +32,36 @@ module LayoutTest {
 
     (:test)
     function stepRowFitsInsideTheBezelCurve(logger as Logger) as Boolean {
-        var half = Layout.halfWidthAt(Layout.STEP_Y + 20);
+        var half = Layout.halfWidthAt(Layout.STEP_LABEL_Y + 18);
         return (Layout.STEP_LABEL_X >= Layout.CENTER - half)
             && (Layout.STEP_VALUE_X <= Layout.CENTER + half);
     }
 
     (:test)
-    function footerRowFitsInsideTheBezelCurve(logger as Logger) as Boolean {
-        var half = Layout.halfWidthAt(Layout.FOOTER_Y + 20);
-        return (Layout.SPARK_X >= Layout.CENTER - half)
-            && (Layout.FOOTER_VALUE_X <= Layout.CENTER + half);
+    function footerRowsFitInsideTheBezelCurve(logger as Logger) as Boolean {
+        var stepHalf = Layout.halfWidthAt(Layout.STEP_BAR_Y + Layout.STEP_BAR_H);
+        var kcalHalf = Layout.halfWidthAt(Layout.KCAL_LABEL_Y + 18);
+        return (Layout.STEP_BAR_X >= Layout.CENTER - stepHalf)
+            && (Layout.STEP_BAR_X + Layout.STEP_BAR_W <= Layout.CENTER + stepHalf)
+            && (Layout.KCAL_LABEL_X >= Layout.CENTER - kcalHalf)
+            && (Layout.KCAL_VALUE_X <= Layout.CENTER + kcalHalf);
+    }
+
+    // The label/value collision that produced "KCA2339" on real hardware:
+    // a 4-digit value right-aligned into a label's space. Labels and values now
+    // live on separate rows, so the only requirement is that each value column
+    // stays right of its label.
+    (:test)
+    function footerLabelsNeverCollideWithValues(logger as Logger) as Boolean {
+        return Layout.STEP_LABEL_X < Layout.STEP_VALUE_X
+            && Layout.KCAL_LABEL_X < Layout.KCAL_VALUE_X
+            && Layout.STEP_LABEL_Y != Layout.KCAL_LABEL_Y;
     }
 
     (:test)
-    function footerElementsDoNotOverlap(logger as Logger) as Boolean {
-        return (Layout.SPARK_X + Layout.SPARK_W) <= Layout.FOOTER_HR_X
-            && Layout.FOOTER_HR_X < Layout.FOOTER_TICK_X
-            && Layout.FOOTER_TICK_X < Layout.FOOTER_LABEL_X
-            && Layout.FOOTER_LABEL_X < Layout.FOOTER_VALUE_X;
+    function chipSitsLeftOfLabelAndValue(logger as Logger) as Boolean {
+        return (Layout.CHIP_X + Layout.CHIP_W) <= Layout.COL_LABEL_X
+            && Layout.COL_LABEL_X < Layout.COL_VALUE_X;
     }
 
     // The date and the time block share one left edge; drifting apart is the
@@ -60,9 +72,14 @@ module LayoutTest {
     }
 
     (:test)
+    function dividerMeetsTheHorizontalRule(logger as Logger) as Boolean {
+        return Layout.DIVIDER_BOTTOM == Layout.RULE_Y;
+    }
+
+    (:test)
     function ruleSitsBetweenColumnAndStepRow(logger as Logger) as Boolean {
         return Layout.RULE_Y > Layout.columnY(Layout.COL_ROWS - 1)
-            && Layout.RULE_Y < Layout.STEP_Y;
+            && Layout.RULE_Y < Layout.STEP_VALUE_Y;
     }
 
     (:test)

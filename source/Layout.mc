@@ -6,57 +6,53 @@ module Layout {
     const SCREEN = 260;
     const CENTER = 130;
 
-    const MARGIN = 14;
+    const STATUS_Y = 26;
+    const STATUS_DATE_X = 46;
+    const STATUS_BATTERY_X = 214;
 
-    // At y=30 the usable half-width is ~86px (x 44..216), so the status row is
-    // inset well clear of the bezel curve rather than hugging the square edge.
-    const STATUS_Y = 30;
-    const STATUS_DATE_X = 48;
-    const STATUS_BATTERY_X = 212;
-
-    const DIVIDER_X = 116;
-    const DIVIDER_TOP = 46;
-
-    // Time is left-aligned to the same x as the date so the left column has one
-    // hard edge; centring the digits left the two rows visibly out of step.
     const TIME_X = STATUS_DATE_X;
-    const TIME_HH_Y = 74;
-    const TIME_MM_Y = 122;
+    const TIME_HH_Y = 78;
+    const TIME_MM_Y = 126;
 
-    const COL_LABEL_X = 130;
-    const COL_VALUE_X = 200;
+    const DIVIDER_X = 112;
+    const DIVIDER_TOP = 50;
+    const DIVIDER_BOTTOM = 162;   // meets RULE_Y so the two rules form one frame
+
+    // Status colour rides a chip beside the label, never the value itself:
+    // a coloured pixel on a transflective panel reflects only its own channel,
+    // so colouring a number makes the thing you read the dimmest thing on screen.
+    const CHIP_X = 120;
+    const CHIP_W = 5;
+    const CHIP_H = 13;
+    const CHIP_INSET_Y = 4;
+
+    const COL_LABEL_X = 132;
+    const COL_VALUE_X = 228;
     const COL_TOP_Y = 54;
-    const COL_STEP_Y = 25;
+    const COL_STEP_Y = 27;
     const COL_ROWS = 4;
 
-    const BB_BAR_X = 212;
-    const BB_BAR_W = 30;
-    const BB_BAR_H = 6;
+    const RULE_Y = 162;
+    const RULE_FROM = 30;
+    const RULE_TO = 230;
 
-    const RULE_Y = 158;
-
-    const STEP_LABEL_X = 26;
-    const STEP_Y = 170;
-    const STEP_BAR_X = 78;
-    const STEP_BAR_W = 100;
+    const STEP_LABEL_X = 34;
+    const STEP_LABEL_Y = 176;
+    const STEP_VALUE_X = 226;
+    const STEP_VALUE_Y = 170;
+    const STEP_BAR_X = 34;
+    const STEP_BAR_Y = 192;
+    const STEP_BAR_W = 192;
     const STEP_BAR_H = 7;
-    const STEP_VALUE_X = 234;
 
-    // The footer sits on one baseline: sparkline left, KCAL label and value
-    // right. Y values are kept inside the circular boundary -- at y=202 the
-    // usable half-width is ~92px, so content must stay within x 38..222.
-    const FOOTER_Y = 200;
-    const SPARK_X = 44;
-    const SPARK_W = 68;
-    const SPARK_H = 14;
-    const SPARK_BUCKETS = 10;
+    const KCAL_LABEL_X = 40;
+    const KCAL_LABEL_Y = 210;
+    const KCAL_VALUE_X = 220;
+    const KCAL_VALUE_Y = 204;
 
-    // "HR" hugs the sparkline it labels; a tick then separates it from the
-    // calorie pair, so the two stop reading as one "HR KCAL" label.
-    const FOOTER_HR_X = 116;
-    const FOOTER_TICK_X = 146;
-    const FOOTER_LABEL_X = 156;
-    const FOOTER_VALUE_X = 214;
+    function columnY(row as Number) as Number {
+        return COL_TOP_Y + (row * COL_STEP_Y);
+    }
 
     // Widest half-chord of the round screen at a given y, so a row can be
     // checked against the bezel curve instead of the 260x260 square.
@@ -67,10 +63,6 @@ module Layout {
             return 0;
         }
         return Math.sqrt(inside).toNumber();
-    }
-
-    function columnY(row as Number) as Number {
-        return COL_TOP_Y + (row * COL_STEP_Y);
     }
 
     function barWidth(percent as Number, total as Number) as Number {

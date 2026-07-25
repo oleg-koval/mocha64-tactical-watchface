@@ -88,6 +88,9 @@ module Fields {
         return percent.format("%d") + "%";
     }
 
+    // Healthy battery stays plain: colour is reserved for the states worth
+    // interrupting a glance for. A green "50%" is decoration that costs
+    // luminance on a reflective panel and teaches the eye to ignore colour.
     function batteryColor(percent as Float) as Number {
         if (percent <= BATTERY_LOW) {
             return Palette.STRAIN;
@@ -95,7 +98,7 @@ module Fields {
         if (percent <= BATTERY_MID) {
             return Palette.CAUTION;
         }
-        return Palette.READY;
+        return Palette.LABEL;
     }
 
     function goalPercent(current as Number, goal as Number) as Number {

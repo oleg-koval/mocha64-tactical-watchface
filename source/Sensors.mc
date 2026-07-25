@@ -42,23 +42,37 @@ module Sensors {
         return latest(stressIterator());
     }
 
+    // The most recent bucket can exist with null data when the device has not
+    // computed it yet, so asking for a single sample loses the metric entirely.
+    // Ask for a window and take the newest sample that actually carries data.
+    const SCAN_DEPTH = 24;
+
     function bodyBatteryIterator() as SensorHistory.SensorHistoryIterator? {
         if (Toybox has :SensorHistory && SensorHistory has :getBodyBatteryHistory) {
-            return SensorHistory.getBodyBatteryHistory({:period => 1});
+            return SensorHistory.getBodyBatteryHistory({
+                :period => SCAN_DEPTH,
+                :order => SensorHistory.ORDER_NEWEST_FIRST
+            });
         }
         return null;
     }
 
     function stressIterator() as SensorHistory.SensorHistoryIterator? {
         if (Toybox has :SensorHistory && SensorHistory has :getStressHistory) {
-            return SensorHistory.getStressHistory({:period => 1});
+            return SensorHistory.getStressHistory({
+                :period => SCAN_DEPTH,
+                :order => SensorHistory.ORDER_NEWEST_FIRST
+            });
         }
         return null;
     }
 
     function heartRateIterator() as SensorHistory.SensorHistoryIterator? {
         if (Toybox has :SensorHistory && SensorHistory has :getHeartRateHistory) {
-            return SensorHistory.getHeartRateHistory({:period => 1});
+            return SensorHistory.getHeartRateHistory({
+                :period => SCAN_DEPTH,
+                :order => SensorHistory.ORDER_NEWEST_FIRST
+            });
         }
         return null;
     }
@@ -68,17 +82,18 @@ module Sensors {
             return null;
         }
 
+        var scanned = 0;
         var sample = iterator.next();
-        if (sample == null) {
-            return null;
+        while (sample != null && scanned < SCAN_DEPTH) {
+            var data = sample.data;
+            if (data != null) {
+                return data.toNumber();
+            }
+            sample = iterator.next();
+            scanned += 1;
         }
 
-        var data = sample.data;
-        if (data == null) {
-            return null;
-        }
-
-        return data.toNumber();
+        return null;
     }
 
     function heartRateSeries(buckets as Number) as Array<Number> {
@@ -88,7 +103,10 @@ module Sensors {
             return series;
         }
 
-        var iterator = SensorHistory.getHeartRateHistory({:period => buckets});
+        var iterator = SensorHistory.getHeartRateHistory({
+            :period => buckets * 6,
+            :order => SensorHistory.ORDER_NEWEST_FIRST
+        });
         var sample = iterator.next();
         while (sample != null && series.size() < buckets) {
             var data = sample.data;
