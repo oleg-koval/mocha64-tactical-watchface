@@ -175,6 +175,84 @@ Not committed — no git repo here yet, and I commit when I say so, not automati
 
 ---
 
+## 2026-07-25 — Day 0, part 3: two repos, and a bug in my own house style
+
+### What shipped
+- `oleg-koval/connectiq-starter` — marked as a GitHub template, so it auto-appears in the
+  `starters` index (that repo's `discover.sh` scrapes template-flagged repos).
+- `oleg-koval/mocha64-tactical-watchface` — generated from it, specialised into the real face.
+
+Both green on first CI run.
+
+### The find: my existing starters have a broken pre-commit config
+While copying the house-style `.pre-commit-config.yaml` from `go-starter`, the YAML
+wouldn't parse. Checked the source — and **`go-starter` and `py-starter` both ship
+`.pre-commit-config.yaml` files that are invalid YAML.**
+
+Cause: the file-length hook embeds shell inline —
+
+```yaml
+entry: bash -c 'echo "ERROR: $f has $lines lines"'
+```
+
+That's a *plain* (unquoted) YAML scalar, and `: ` inside one terminates it. The single
+quotes are literal characters to YAML, not quoting. So the config has never loaded, which
+means **the 300-line hook mandated by RULES.md §2.2 has never actually run in either
+repo.** A rule that is documented as "mechanically enforced" was enforcing nothing.
+
+Fix here: shell goes in `scripts/*.sh`, YAML only references file paths. CI calls the same
+scripts, so the local gate and the CI gate cannot drift. Verified both directions —
+passes on real files, correctly rejects a 350-line file.
+
+**Article angle #8 — strong:** the agent found a latent bug in *my own conventions* by
+trying to follow them. Not by reviewing them; by inheriting them. Silent failure in the
+enforcement layer is the worst kind, because the green badge says the opposite.
+
+### Things I refused to fake
+Two places where the honest answer was "can't":
+
+1. **The marketplace link.** Asked for one. It cannot exist — a store listing needs a
+   signed `.iq`, a Garmin developer account, and manual review that takes days. So the
+   README ships a `not yet published` placeholder badge plus the real submission
+   procedure. Documented instead of invented.
+2. **The CI compile job.** The Connect IQ SDK is licence-gated with no stable public
+   download URL, so `monkeyc` can't run on a GitHub runner out of the box. The build job
+   is gated behind a `CONNECTIQ_SDK_URL` repo variable and **skips** rather than
+   pretending. The SDK-free gates (file length, XML wellformedness, app id validity, no
+   committed signing key) always run and are genuinely green.
+
+**Article angle #9:** the interesting engineering was deciding what *not* to automate. A
+CI job that fakes a compile is worse than no CI job.
+
+### RULES.md §2.4 needed a documented exemption
+§2.4 mandates a format gate. **No formatter exists for Monkey C** — no `gofmt`, no
+`prettier`, and Garmin ships nothing. §1 says exemptions must be documented in the
+starter's own `AGENTS.md`, so that's where it went, with compensating controls
+(`.editorconfig`, whitespace hooks, and strict type checking at `-l 3`, which is a
+stronger correctness gate than formatting anyway).
+
+Also adapted §2.3 (E2E over unit tests): a watch face has no callable public interface, so
+"E2E" means the simulator and the physical watch, neither automatable. Unit tests cover
+the pure functions §2.3 permits; the E2E layer is a documented manual check.
+
+### A gate worth having
+Added a hook and a CI check that both refuse a committed `.der`/`.pem`/`developer_key`.
+A Garmin developer key can't be revoked — leak it and you lose the ability to publish
+updates under your own app identity, permanently. Cheap gate, unbounded downside.
+
+### The palette became executable
+`Palette.mc` ships `quantize()` and `isLatticeExact()`, and `PaletteTest.mc` asserts every
+palette colour is lattice-exact. The day-zero design argument is now a test that fails the
+build if someone reintroduces a colour the panel can't render.
+
+The two Catppuccin quantisations are also pinned as tests: `#CDD6F4 → #AAFFFF` and
+`#F38BA8 → #FFAAAA`. The claim is now checkable rather than assertable.
+
+**Article angle #10:** the design rationale stopped being prose in a spec and became a
+failing test. That's the difference between a documented decision and an enforced one.
+
+---
+
 ## Open threads to resolve
 - [x] What "army-like" means → tactical HUD, gym/health subject matter
 - [x] Which data fields → recovery/readiness + activity/goals
@@ -194,3 +272,7 @@ Not committed — no git repo here yet, and I commit when I say so, not automati
 5. "Army watch face" is four mutually-exclusive watches wearing one adjective
 6. The best decision came from me correcting the agent's premise
 7. The agent argued *for* less abstraction, using the platform's binding constraint
+8. Following my own conventions surfaced a silent bug in them — the enforcement
+   layer had never run, and the green badge said otherwise
+9. The real engineering was deciding what *not* to automate (faked CI is worse than none)
+10. Design rationale that becomes a failing test stops being documentation
