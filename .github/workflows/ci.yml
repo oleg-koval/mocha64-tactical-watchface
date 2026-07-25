@@ -1,0 +1,67 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Gates that need no Garmin SDK. These are the ones that must always be green.
+  static:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: File length cap (RULES.md §2.2 — 300 lines)
+        run: find source tests -name '*.mc' -print0 | xargs -0 bash scripts/check-file-length.sh
+
+      - name: Manifest is well-formed XML
+        run: |
+          python3 -c "import xml.dom.minidom,sys; xml.dom.minidom.parse('manifest.xml')"
+          for f in resources/*/*.xml; do
+            python3 -c "import xml.dom.minidom,sys; xml.dom.minidom.parse('$f')"
+          done
+
+      - name: Manifest declares an application id
+        run: |
+          grep -qE 'id="[0-9a-f]{32}"' manifest.xml \
+            || { echo "::error::manifest.xml needs a unique 32-char hex application id"; exit 1; }
+
+      - name: No signing keys committed
+        run: |
+          if git ls-files | grep -qE '\.(der|pem)$|developer_key'; then
+            echo "::error::a signing key is tracked in git — remove it and rotate"
+            exit 1
+          fi
+
+  # Compiling Monkey C requires the Connect IQ SDK, which is not a public
+  # download with a stable URL and is licence-gated. Opt in per-repo by setting
+  # the CONNECTIQ_SDK_URL variable; until then this job is skipped, not faked.
+  build:
+    runs-on: ubuntu-latest
+    if: vars.CONNECTIQ_SDK_URL != ''
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4.7.1
+        with:
+          distribution: temurin
+          java-version: "17"
+      - name: Fetch Connect IQ SDK
+        run: |
+          curl -sSL "${{ vars.CONNECTIQ_SDK_URL }}" -o sdk.zip
+          unzip -q sdk.zip -d "$HOME/connectiq-sdk"
+          echo "$HOME/connectiq-sdk/bin" >> "$GITHUB_PATH"
+      - name: Generate an ephemeral signing key
+        run: |
+          openssl genrsa -out ci_key.pem 4096
+          openssl pkcs8 -topk8 -inform PEM -outform DER -nocrypt \
+            -in ci_key.pem -out ci_key.der
+      - run: make lint KEY=ci_key.der
+      - run: make test KEY=ci_key.der
