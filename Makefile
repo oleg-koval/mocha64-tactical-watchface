@@ -1,6 +1,6 @@
 .PHONY: build sim test lint package deploy clean hooks key doctor
 
-NAME    := starter-face
+NAME    := mocha64-face
 DEVICE  ?= fenix6pro
 JUNGLE  := monkey.jungle
 KEY     ?= $(HOME)/.Garmin/ConnectIQ/developer_key.der
