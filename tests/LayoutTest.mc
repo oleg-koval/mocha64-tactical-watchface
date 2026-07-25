@@ -31,34 +31,6 @@ module LayoutTest {
     }
 
     (:test)
-    function stepRowFitsInsideTheBezelCurve(logger as Logger) as Boolean {
-        var half = Layout.halfWidthAt(Layout.STEP_LABEL_Y + 18);
-        return (Layout.STEP_LABEL_X >= Layout.CENTER - half)
-            && (Layout.STEP_VALUE_X <= Layout.CENTER + half);
-    }
-
-    (:test)
-    function footerRowsFitInsideTheBezelCurve(logger as Logger) as Boolean {
-        var stepHalf = Layout.halfWidthAt(Layout.STEP_BAR_Y + Layout.STEP_BAR_H);
-        var kcalHalf = Layout.halfWidthAt(Layout.KCAL_LABEL_Y + 18);
-        return (Layout.STEP_BAR_X >= Layout.CENTER - stepHalf)
-            && (Layout.STEP_BAR_X + Layout.STEP_BAR_W <= Layout.CENTER + stepHalf)
-            && (Layout.KCAL_LABEL_X >= Layout.CENTER - kcalHalf)
-            && (Layout.KCAL_VALUE_X <= Layout.CENTER + kcalHalf);
-    }
-
-    // The label/value collision that produced "KCA2339" on real hardware:
-    // a 4-digit value right-aligned into a label's space. Labels and values now
-    // live on separate rows, so the only requirement is that each value column
-    // stays right of its label.
-    (:test)
-    function footerLabelsNeverCollideWithValues(logger as Logger) as Boolean {
-        return Layout.STEP_LABEL_X < Layout.STEP_VALUE_X
-            && Layout.KCAL_LABEL_X < Layout.KCAL_VALUE_X
-            && Layout.STEP_LABEL_Y != Layout.KCAL_LABEL_Y;
-    }
-
-    (:test)
     function chipSitsLeftOfLabelAndValue(logger as Logger) as Boolean {
         return (Layout.CHIP_X + Layout.CHIP_W) <= Layout.COL_LABEL_X
             && Layout.COL_LABEL_X < Layout.COL_VALUE_X;
@@ -76,10 +48,47 @@ module LayoutTest {
         return Layout.DIVIDER_BOTTOM == Layout.RULE_Y;
     }
 
+    // The goal bar cut through the STEPS label and value on real hardware.
+    // These pin the horizontal corridors so the bar physically cannot reach
+    // either text column.
     (:test)
-    function ruleSitsBetweenColumnAndStepRow(logger as Logger) as Boolean {
-        return Layout.RULE_Y > Layout.columnY(Layout.COL_ROWS - 1)
-            && Layout.RULE_Y < Layout.STEP_VALUE_Y;
+    function goalBarSitsBetweenLabelAndValue(logger as Logger) as Boolean {
+        var barEnd = Layout.STEP_BAR_X + Layout.STEP_BAR_W;
+        return Layout.ROW_1_LABEL_X < Layout.STEP_BAR_X
+            && barEnd < Layout.ROW_1_VALUE_X;
+    }
+
+    (:test)
+    function goalBarClearsBothTextColumns(logger as Logger) as Boolean {
+        var barEnd = Layout.STEP_BAR_X + Layout.STEP_BAR_W;
+        var leftGap = Layout.STEP_BAR_X - Layout.ROW_1_LABEL_X;
+        var rightGap = Layout.ROW_1_VALUE_X - barEnd;
+        return leftGap >= 40 && rightGap >= 40;
+    }
+
+    // The vertical stack is derived at draw time, so these check the gaps are
+    // large enough that no plausible glyph height can close them.
+    (:test)
+    function gapsSurviveATallFont(logger as Logger) as Boolean {
+        var tallest = 34;
+        var columnBottom = Layout.columnY(Layout.COL_ROWS - 1) + tallest;
+        var ruleY = columnBottom + Layout.GAP_ABOVE_RULE;
+        var row1 = ruleY + Layout.GAP_BELOW_RULE;
+        var row2 = row1 + tallest + Layout.GAP_BETWEEN_ROWS;
+        return ruleY > columnBottom
+            && row1 > ruleY
+            && (row2 - row1) > tallest
+            && (row2 + tallest) < Layout.SCREEN;
+    }
+
+    (:test)
+    function derivedFooterFitsInsideTheBezelCurve(logger as Logger) as Boolean {
+        var tallest = 34;
+        var ruleY = Layout.columnY(Layout.COL_ROWS - 1) + tallest + Layout.GAP_ABOVE_RULE;
+        var row2 = ruleY + Layout.GAP_BELOW_RULE + tallest + Layout.GAP_BETWEEN_ROWS;
+        var half = Layout.halfWidthAt(row2 + tallest);
+        return (Layout.ROW_2_LABEL_X >= Layout.CENTER - half)
+            && (Layout.ROW_2_VALUE_X <= Layout.CENTER + half);
     }
 
     (:test)

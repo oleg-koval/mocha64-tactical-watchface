@@ -16,7 +16,6 @@ module Layout {
 
     const DIVIDER_X = 112;
     const DIVIDER_TOP = 50;
-    const DIVIDER_BOTTOM = 162;   // meets RULE_Y so the two rules form one frame
 
     // Status colour rides a chip beside the label, never the value itself:
     // a coloured pixel on a transflective panel reflects only its own channel,
@@ -28,27 +27,33 @@ module Layout {
 
     const COL_LABEL_X = 132;
     const COL_VALUE_X = 228;
-    const COL_TOP_Y = 54;
-    const COL_STEP_Y = 27;
+    const COL_TOP_Y = 50;
+    const COL_STEP_Y = 25;
     const COL_ROWS = 4;
 
-    const RULE_Y = 162;
+    // Vertical gaps, applied to measured glyph heights at draw time. Every
+    // absolute Y below the recovery column is derived, never written down:
+    // hardcoding one against an assumed font height put the goal bar through
+    // the STEPS label, and then the rule through STRESS.
+    const GAP_ABOVE_RULE = 8;
+    const GAP_BELOW_RULE = 8;
+    const GAP_BETWEEN_ROWS = 6;
+
     const RULE_FROM = 30;
     const RULE_TO = 230;
 
-    const STEP_LABEL_X = 34;
-    const STEP_LABEL_Y = 176;
-    const STEP_VALUE_X = 226;
-    const STEP_VALUE_Y = 170;
-    const STEP_BAR_X = 34;
-    const STEP_BAR_Y = 192;
-    const STEP_BAR_W = 192;
-    const STEP_BAR_H = 7;
+    // Footer row X corridors. All footer Y values are computed at draw time.
 
-    const KCAL_LABEL_X = 40;
-    const KCAL_LABEL_Y = 210;
-    const KCAL_VALUE_X = 220;
-    const KCAL_VALUE_Y = 204;
+    const ROW_1_LABEL_X = 30;
+    const ROW_1_VALUE_X = 230;
+    const ROW_2_LABEL_X = 46;
+    const ROW_2_VALUE_X = 214;
+
+    // The bar lives in the gap between label and value, never spanning across
+    // either of them.
+    const STEP_BAR_X = 104;
+    const STEP_BAR_W = 74;
+    const STEP_BAR_H = 8;
 
     function columnY(row as Number) as Number {
         return COL_TOP_Y + (row * COL_STEP_Y);

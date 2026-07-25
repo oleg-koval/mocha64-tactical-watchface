@@ -17,12 +17,21 @@ class MochaFaceView extends WatchUi.WatchFace {
         dc.setColor(Palette.VALUE, Palette.BG);
         dc.clear();
 
+        // Everything below the recovery column is derived from the real glyph
+        // height. Writing these down as constants is what put the goal bar
+        // through the STEPS label and the rule through STRESS.
+        var valueH = dc.getFontHeight(Graphics.FONT_SMALL);
+        var columnBottom = Layout.columnY(Layout.COL_ROWS - 1) + valueH;
+        var ruleY = columnBottom + Layout.GAP_ABOVE_RULE;
+        var row1Y = ruleY + Layout.GAP_BELOW_RULE;
+        var row2Y = row1Y + valueH + Layout.GAP_BETWEEN_ROWS;
+
         drawStatusBar(dc);
         drawTime(dc);
-        Hud.verticalRule(dc, Layout.DIVIDER_X, Layout.DIVIDER_TOP, Layout.DIVIDER_BOTTOM);
+        Hud.verticalRule(dc, Layout.DIVIDER_X, Layout.DIVIDER_TOP, ruleY);
         drawRecoveryColumn(dc);
-        Hud.horizontalRule(dc, Layout.RULE_Y, Layout.RULE_FROM, Layout.RULE_TO);
-        drawActivity(dc);
+        Hud.horizontalRule(dc, ruleY, Layout.RULE_FROM, Layout.RULE_TO);
+        drawActivity(dc, row1Y, row2Y);
     }
 
     private function drawStatusBar(dc as Dc) as Void {
@@ -89,7 +98,7 @@ class MochaFaceView extends WatchUi.WatchFace {
             stressLevel == null ? Palette.RULE : Fields.stressColor(stressLevel));
     }
 
-    private function drawActivity(dc as Dc) as Void {
+    private function drawActivity(dc as Dc, row1Y as Number, row2Y as Number) as Void {
         var info = ActivityMonitor.getInfo();
 
         var steps = 0;
@@ -101,16 +110,16 @@ class MochaFaceView extends WatchUi.WatchFace {
             goal = info.stepGoal as Number;
         }
 
-        Hud.footerRow(dc, "STEPS", Fields.formatCount(steps),
-            Layout.STEP_LABEL_Y, Layout.STEP_VALUE_Y,
-            Layout.STEP_LABEL_X, Layout.STEP_VALUE_X);
+        var stepMid = Hud.footerRow(dc, row1Y,
+            Layout.ROW_1_LABEL_X, Layout.ROW_1_VALUE_X,
+            "STEPS", Fields.formatCount(steps));
 
-        Hud.bar(dc, Layout.STEP_BAR_X, Layout.STEP_BAR_Y,
-            Layout.STEP_BAR_W, Layout.STEP_BAR_H,
-            Fields.goalPercent(steps, goal), Palette.VALUE);
+        Hud.inlineBar(dc, stepMid,
+            Layout.STEP_BAR_X, Layout.STEP_BAR_W, Layout.STEP_BAR_H,
+            Fields.goalPercent(steps, goal));
 
-        Hud.footerRow(dc, "KCAL", Fields.formatCount(info.calories),
-            Layout.KCAL_LABEL_Y, Layout.KCAL_VALUE_Y,
-            Layout.KCAL_LABEL_X, Layout.KCAL_VALUE_X);
+        Hud.footerRow(dc, row2Y,
+            Layout.ROW_2_LABEL_X, Layout.ROW_2_VALUE_X,
+            "KCAL", Fields.formatCount(info.calories));
     }
 }
