@@ -21,3 +21,4 @@ gen/
 # Env
 .env
 .env.local
+.gstack/
