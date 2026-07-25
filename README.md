@@ -1,63 +1,127 @@
-# connectiq-starter
+# MOCHA-64 Tactical
 
-> Opinionated Garmin Connect IQ starter — Monkey C, strict type checking, unit tests, pre-commit hooks, Make targets.
+> A military instrument panel for your body. Tactical HUD watch face for the Garmin Fenix 6 Pro.
 
-[![CI](https://github.com/oleg-koval/connectiq-starter/actions/workflows/ci.yml/badge.svg)](https://github.com/oleg-koval/connectiq-starter/actions/workflows/ci.yml)
+[![CI](https://github.com/oleg-koval/mocha64-tactical-watchface/actions/workflows/ci.yml/badge.svg)](https://github.com/oleg-koval/mocha64-tactical-watchface/actions/workflows/ci.yml)
 [![Connect IQ](https://img.shields.io/badge/Connect%20IQ-3.1%2B-007cc3)](https://developer.garmin.com/connect-iq/)
+[![Device](https://img.shields.io/badge/device-fenix%206%20Pro-333)](https://www.garmin.com/en-US/p/641479)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 
-A working watch face you can build, test, simulate and sideload in one sitting — plus the
-gates that stop a Monkey C project rotting: strict type checking, unit-testable pure
-modules, a 300-line file cap, and a hook that refuses to let you commit your signing key.
+Military legibility — brackets, mono type, hard rules — pointed at recovery and training
+load instead of terrain and weather. Not a field instrument for the outdoors; an
+instrument panel for the body.
 
-## Install (for users of an app built from this template)
-
-Three paths. Pick by whether the app is published.
-
-### 1. Connect IQ Store — the normal route
-
-[![Get it on Connect IQ](https://img.shields.io/badge/Connect%20IQ-Store-007cc3?logo=garmin&logoColor=white)](https://apps.garmin.com/)
-
-1. Open the store link above on the device you use for Garmin Connect.
-2. Tap **Download** — it queues against your Garmin account.
-3. Open **Garmin Connect Mobile** and let it sync, or connect to Wi-Fi/USB.
-4. On the watch: **Settings → Watch Face** (or **Activities & Apps**) and select it.
-
-> Replace the badge URL above with your app's store page once published. See
-> [Publishing](#publishing-to-the-connect-iq-store) for how to get one.
-
-### 2. Cloud install without the store — Garmin Express or a shared `.iq`
-
-For a build that is not (or not yet) publicly listed:
-
-```bash
-make package          # produces bin/starter-face.iq
+```
+╭─ SAT 25 JUL ─────── ▮78% ─╮   date · watch battery
+│  ▛▀▖ ▟   │  BB   74 ▊▊▊   │
+│  ▙▄▘ ▐▌  │  HR   62       │   time block (left)
+│  ▄▄  ▟▄  │  RHR  48       │   recovery column (right)
+│  ▄▄▘ ▐▌  │  STR  22       │
+│  ──────────────────────   │
+│  STEP ▊▊▊▊▊▊░░░ 8241      │   activity, full width
+╰─ ▁▂▃▅▇▅▃▂ HR 4h ─ 2140k ──╯   sparkline · calories
 ```
 
-- **Private store distribution:** upload the `.iq` in the Garmin developer portal and
-  keep the listing unlisted. Testers install it from the direct URL exactly as above —
-  it still syncs through their Garmin account, so no cable is needed.
+Time is always 24-hour and ignores the system 12/24h setting — deliberately. A military
+instrument that renders `2:05 PM` is a different design.
+
+> **Status: in development.** The layout above is the design target. The palette and pure
+> logic modules are implemented and unit-tested; the full HUD layout is not yet built, and
+> nothing has been compiled against the SDK yet. Not published to the Connect IQ Store.
+> See [the spec](./docs/superpowers/specs/2026-07-25-fenix6-hud-watchface-design.md).
+
+## Install
+
+Three paths, depending on whether you want to wait for the store.
+
+### 1. Connect IQ Store
+
+*Not yet published.* Once it is, this badge becomes the install link:
+
+[![Connect IQ Store](https://img.shields.io/badge/Connect%20IQ-not%20yet%20published-lightgrey?logo=garmin&logoColor=white)](https://apps.garmin.com/)
+
+When live:
+
+1. Open the store page on the phone running Garmin Connect.
+2. Tap **Download** — it queues against your Garmin account.
+3. Open **Garmin Connect Mobile** and let the watch sync.
+4. On the watch: **Settings → Watch Face → MOCHA-64 Tactical**.
+
+### 2. Cloud install without the store
+
+For a build that isn't publicly listed — no cable needed, still syncs via your account:
+
+```bash
+make package          # → bin/mocha64-face.iq
+```
+
+- **Unlisted store entry:** upload the `.iq` in the Garmin developer portal and keep the
+  listing unlisted. Testers install from the direct URL exactly as above.
 - **Garmin Express (desktop):** connect the watch, open Express → your device →
-  **Connect IQ Apps**, and it syncs whatever your account has queued.
+  **Connect IQ Apps**; it syncs whatever your account has queued.
 
 ### 3. Local sideload — no account, no store, no review
 
-The fastest path, and the only one that works offline.
+Fastest path, works entirely offline.
 
 ```bash
-make build            # produces bin/starter-face.prg
-make deploy           # copies it onto a mounted watch
+make build            # → bin/mocha64-face.prg
+make deploy           # copies it to a mounted watch
 ```
 
-Or by hand:
+By hand:
 
-1. Connect the watch by USB. It mounts as mass storage (`/Volumes/GARMIN` on macOS).
-2. Copy the `.prg` into `GARMIN/APPS/` on the device.
+1. Connect the Fenix by USB — it mounts as mass storage (`/Volumes/GARMIN` on macOS).
+2. Copy `bin/mocha64-face.prg` into `GARMIN/APPS/`.
 3. **Eject the volume properly**, then unplug.
-4. On the watch: **Settings → Watch Face** and pick it.
+4. On the watch: **Settings → Watch Face** and select it.
 
-No developer account is required for personal sideloading. `make deploy` fails loudly if
-the watch is not mounted rather than silently doing nothing.
+No developer account is needed for personal sideloading. `make deploy` fails loudly if
+the watch isn't mounted rather than silently doing nothing.
+
+## The MOCHA-64 palette
+
+The design brief was "Catppuccin-ish". That doesn't survive contact with the hardware, and
+the reason is arithmetic rather than taste.
+
+The Fenix 6 Pro renders **64 colours**. 64 = 4³ — four levels per channel — so every
+channel snaps to `00`, `55`, `AA` or `FF`. You can therefore compute exactly what
+Catppuccin Mocha *becomes*:
+
+| Mocha token | Hex | Quantised | Outcome |
+|---|---|---|---|
+| `text` | `#CDD6F4` | `#AAFFFF` | warm off-white → **cyan** |
+| `base` | `#1E1E2E` | `#000055` | survives |
+| `surface0` | `#313244` | `#555555` | blue tint lost, flat grey |
+| `red` | `#F38BA8` | `#FFAAAA` | **pale pink** — cannot signal an alert |
+| `green` | `#A6E3A1` | `#AAFFAA` | pale mint, survives usefully |
+
+It doesn't merely dim — it **shifts hue**. Body text goes cyan and the alert colour goes
+pastel pink, which inverts the theme's entire job.
+
+So MOCHA-64 keeps Catppuccin's *grammar* — the base → surface → accent ramp, the semantic
+roles, the cool dark ground — and re-derives the values to sit **exactly on the lattice**,
+where quantisation is a no-op:
+
+```
+BG      #000000   crust      page black
+PANEL   #000055   base       bracket interiors, keeps the cool cast
+RULE    #555555   surface1   divider rules, empty bar track
+LABEL   #AAAAAA   subtext0   field labels
+VALUE   #FFFFFF   text       primary numerals
+```
+
+One deliberate break from Catppuccin: status glyphs get *saturated* lattice points
+(`READY #55FF55`, `CAUTION #FFAA00`, `STRAIN #FF5555`, `DATA #55AAFF`) because pastels
+can't convey urgency at glyph size. The pale Catppuccin-derived tints are kept for large
+bar fills (`FILL_OK #AAFFAA`, `FILL_HI #FFAAAA`) where saturation would shout.
+
+`tests/PaletteTest.mc` asserts every palette colour is lattice-exact, so a future edit
+that reintroduces a colour the panel can't render fails the build.
+
+> The 4×4×4 lattice is inferred from `64 = 4³` and is **pending verification** against the
+> SDK device profile. If the Fenix uses an arbitrary 64-entry lookup table instead, the fix
+> is to read the real table and snap to nearest — the method is unchanged.
 
 ## Development
 
@@ -69,127 +133,53 @@ java -version                 # must print a version, not an error
 ```
 
 Then install the [Connect IQ SDK Manager](https://developer.garmin.com/connect-iq/sdk/),
-download an SDK plus your target device profile, and put the SDK's `bin/` on `PATH`.
-
-Generate your signing key once:
+download an SDK plus the **fenix 6 Pro** device profile, and put the SDK's `bin/` on `PATH`.
 
 ```bash
-make key                      # → ~/.Garmin/ConnectIQ/developer_key.der
-```
-
-Check everything resolved:
-
-```bash
-make doctor
-# java     openjdk version "17.0.11"
-# monkeyc  /Users/you/connectiq-sdk/bin/monkeyc
-# monkeydo /Users/you/connectiq-sdk/bin/monkeydo
-# key      /Users/you/.Garmin/ConnectIQ/developer_key.der
-```
-
-Then:
-
-```bash
-make hooks    # install pre-commit hooks (once)
-make lint     # monkeyc strict type check (-l 3)
-make test     # unit tests in the simulator
-make sim      # launch the simulator and run the face
-make build    # → bin/starter-face.prg
-make deploy   # sideload to a mounted watch
-make package  # → bin/starter-face.iq for the store
-```
-
-Target a different device with `DEVICE=`:
-
-```bash
-make build DEVICE=fenix7
+make key                      # generate signing key → ~/.Garmin/ConnectIQ/
+make doctor                   # verify java, monkeyc, monkeydo, key
+make hooks                    # install pre-commit hooks (once)
+make lint                     # strict type check (-l 3)
+make test                     # unit tests in the simulator
+make sim                      # run the face in the simulator
+make build                    # → bin/mocha64-face.prg
+make deploy                   # sideload to a mounted watch
 ```
 
 ## Layout
 
 ```
-manifest.xml          app id, type, target products, permissions
-monkey.jungle         build config; wires tests/ in and excludes them from release
 source/
-  *App.mc             AppBase — lifecycle only
-  *View.mc            WatchFace — drawing only, computes nothing
+  MochaFaceApp.mc     AppBase — lifecycle only
+  MochaFaceView.mc    WatchFace — drawing only, computes nothing
   Fields.mc           pure: value → formatted string, value → colour band
   Layout.mc           flat coordinate constants
-  Palette.mc          colour constants + 64-colour quantisation helper
-resources/
-  drawables/          launcher icon
-  strings/            localised strings
+  Palette.mc          MOCHA-64 constants + 64-colour quantisation
 tests/                (:test) functions, excluded from release builds
+docs/
+  superpowers/specs/  the design spec
+  article-journal.md  build journal for the write-up
 ```
 
-The split is the point: **pure modules hold the logic, views hold the drawing.**
-`Fields.mc` and `Palette.mc` make no `Dc` calls, so they are unit-testable. Views are
-layout scripts.
+Pure modules hold the logic; views hold the drawing. `Fields.mc` and `Palette.mc` make no
+`Dc` calls, which is what makes them unit-testable.
 
-## The 64-colour problem
+**Memory is the binding constraint** — tighter than CPU or battery. That is why layout
+lives in a flat constants table rather than a field-object abstraction: on a memory-capped
+watch face, a table of objects and closures spends the scarcest resource to buy
+flexibility already available from editing constants. Profile before adding indirection.
 
-Most Garmin wearables use a transflective MIP panel rendering **64 colours** — and
-64 = 4³, meaning every channel snaps to `00`, `55`, `AA` or `FF`. Import a palette
-designed for a 24-bit screen and it does not merely dim, it **shifts hue**:
+## Roadmap
 
-```
-Catppuccin text  #CDD6F4  →  #AAFFFF   warm off-white becomes cyan
-Catppuccin red   #F38BA8  →  #FFAAAA   alert red becomes pastel pink
-```
+- **Phase 0** — toolchain, first flash to hardware (scaffolded; JDK + SDK still to install)
+- **Phase 1** — this watch face (in progress)
+- **Phase 2** — adaptive progressive-overload strength training app; own spec. Training
+  history likely lives off-watch to sidestep the memory ceiling.
 
-`Palette.mc` ships the quantisation helper and `isLatticeExact()` so you can assert your
-palette survives the panel — see `tests/PaletteTest.mc` for the pattern. Pick colours
-already on the lattice and nothing shifts.
+## Built from
 
-> Verify the lattice assumption against your target's device profile. If a device uses
-> an arbitrary 64-entry lookup table instead, read the real table and snap to nearest —
-> the method is unchanged.
-
-## Publishing to the Connect IQ Store
-
-Not automatable — Garmin requires a manual submission and reviews it.
-
-1. Register as a developer at <https://developer.garmin.com/connect-iq/>.
-2. `make package` → `bin/*.iq`, signed with your developer key.
-3. Upload at <https://apps.garmin.com/developer/dashboard>, with: app name,
-   description, category, at least one screenshot per supported device, and an icon.
-4. Submit for review. Turnaround is typically days, not hours.
-5. Once live, put the store URL in this README's badge.
-
-**Back up your developer key.** Losing it means you can no longer publish updates to
-your own app under the same identity, and there is no recovery path.
-
-## CI
-
-| Check | Runs |
-|-------|------|
-| 300-line file cap (RULES.md §2.2) | always |
-| Manifest + resource XML well-formed | always |
-| Application id present and valid | always |
-| No signing key committed | always |
-| `make lint` + `make test` | only when `CONNECTIQ_SDK_URL` repo variable is set |
-
-The compile job is opt-in because the Connect IQ SDK is licence-gated with no stable
-public download URL. It is skipped rather than faked.
-
-## Conventions
-
-Governed by [oleg-koval/starters RULES.md](https://github.com/oleg-koval/starters/blob/main/RULES.md).
-Documented exemption: RULES.md §2.4's format gate cannot be met — no formatter exists
-for Monkey C. See [AGENTS.md](./AGENTS.md#rule-exemptions) for the compensating controls.
-
-## Contributing
-
-PRs welcome. See [CONTRIBUTING.md](./CONTRIBUTING.md) and [AGENTS.md](./AGENTS.md).
-
-## Other starters
-
-Part of a set with shared conventions (AGENTS.md, Conventional Commits, MIT, GitHub Actions CI, Dependabot):
-
-- [`ts-npm-starter`](https://github.com/oleg-koval/ts-npm-starter) - TypeScript / Node
-- [`py-starter`](https://github.com/oleg-koval/py-starter) - Python (uv + ruff + ty)
-- [`go-starter`](https://github.com/oleg-koval/go-starter) - Go (standard layout + golangci-lint)
-- [`connectiq-starter`](https://github.com/oleg-koval/connectiq-starter) - Garmin Connect IQ / Monkey C - this repo
+[`connectiq-starter`](https://github.com/oleg-koval/connectiq-starter) — Garmin Connect IQ
+template with strict type checking, unit tests, and pre-commit gates.
 
 ## License
 

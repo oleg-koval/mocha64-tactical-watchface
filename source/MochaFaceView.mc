@@ -3,7 +3,7 @@ import Toybox.Lang;
 import Toybox.System;
 import Toybox.WatchUi;
 
-class StarterFaceView extends WatchUi.WatchFace {
+class MochaFaceView extends WatchUi.WatchFace {
 
     function initialize() {
         WatchFace.initialize();

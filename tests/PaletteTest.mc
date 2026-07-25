@@ -8,7 +8,7 @@ module PaletteTest {
         var colors = [
             Palette.BG, Palette.PANEL, Palette.RULE, Palette.LABEL,
             Palette.VALUE, Palette.READY, Palette.CAUTION,
-            Palette.STRAIN, Palette.DATA
+            Palette.STRAIN, Palette.DATA, Palette.FILL_OK, Palette.FILL_HI
         ];
         for (var i = 0; i < colors.size(); i += 1) {
             if (!Palette.isLatticeExact(colors[i])) {

@@ -13,6 +13,11 @@ module Palette {
     const STRAIN  = 0xFF5555;
     const DATA    = 0x55AAFF;
 
+    // Saturated points read as status at glyph size; these pale tints are for large
+    // filled areas, where a saturated fill shouts.
+    const FILL_OK = 0xAAFFAA;
+    const FILL_HI = 0xFFAAAA;
+
     const LEVELS = [0x00, 0x55, 0xAA, 0xFF];
 
     function quantizeChannel(value as Number) as Number {
