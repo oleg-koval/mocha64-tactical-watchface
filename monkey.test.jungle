@@ -1,0 +1,6 @@
+# Loaded only for `make test` (as a second -f jungle, after monkey.jungle) so
+# that (:test) annotated code is actually compiled. base.excludeAnnotations
+# strips it from every other target on purpose -- test code must not ship in
+# the production build/package artifact. Reassigned to a placeholder that
+# matches nothing, since the jungle grammar requires a value here.
+base.excludeAnnotations = none

@@ -28,31 +28,27 @@ module Hud {
         }
     }
 
-    // Label small and grey, value large and white, status carried by a chip.
-    // Luminance does the work the panel can actually deliver.
+    // Label small and grey, value carrying its own status colour. The label is
+    // centred on the value's midline so a shorter label glyph can never sit
+    // proud of the number it belongs to.
     function metricRow(
-        dc as Dc, row as Number,
-        label as String, value as String, chip as Number
+        dc as Dc, y as Number,
+        label as String, value as String, valueColor as Number
     ) as Void {
-        var y = Layout.columnY(row);
-
-        dc.setColor(chip, Graphics.COLOR_TRANSPARENT);
-        dc.fillRectangle(
-            Layout.CHIP_X, y + Layout.CHIP_INSET_Y,
-            Layout.CHIP_W, Layout.CHIP_H
-        );
+        var valueH = dc.getFontHeight(Graphics.FONT_TINY);
+        var labelH = dc.getFontHeight(Graphics.FONT_XTINY);
 
         dc.setColor(Palette.LABEL, Graphics.COLOR_TRANSPARENT);
         dc.drawText(
-            Layout.COL_LABEL_X, y + Layout.CHIP_INSET_Y,
+            Layout.COL_LABEL_X, y + ((valueH - labelH) / 2),
             Graphics.FONT_XTINY, label,
             Graphics.TEXT_JUSTIFY_LEFT
         );
 
-        dc.setColor(Palette.VALUE, Graphics.COLOR_TRANSPARENT);
+        dc.setColor(valueColor, Graphics.COLOR_TRANSPARENT);
         dc.drawText(
             Layout.COL_VALUE_X, y,
-            Graphics.FONT_SMALL, value,
+            Graphics.FONT_TINY, value,
             Graphics.TEXT_JUSTIFY_RIGHT
         );
     }
@@ -65,16 +61,19 @@ module Hud {
         labelX as Number, valueX as Number,
         label as String, value as String
     ) as Number {
-        var valueH = dc.getFontHeight(Graphics.FONT_SMALL);
-        var labelH = dc.getFontHeight(Graphics.FONT_XTINY);
+        // Footer values sit at label size. Steps and calories are the least
+        // urgent numbers here, and the bottom of a round face is where the
+        // bezel curve leaves the least room -- a taller font down here is what
+        // pushed this row off the screen entirely.
+        var valueH = dc.getFontHeight(Graphics.FONT_XTINY);
         var midline = rowTop + (valueH / 2);
 
         dc.setColor(Palette.LABEL, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(labelX, midline - (labelH / 2), Graphics.FONT_XTINY, label,
+        dc.drawText(labelX, rowTop, Graphics.FONT_XTINY, label,
             Graphics.TEXT_JUSTIFY_LEFT);
 
         dc.setColor(Palette.VALUE, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(valueX, rowTop, Graphics.FONT_SMALL, value,
+        dc.drawText(valueX, rowTop, Graphics.FONT_XTINY, value,
             Graphics.TEXT_JUSTIFY_RIGHT);
 
         return midline;
@@ -94,7 +93,7 @@ module Hud {
 
         var filled = Layout.barWidth(percent, width);
         if (filled > 0) {
-            dc.setColor(Palette.VALUE, Graphics.COLOR_TRANSPARENT);
+            dc.setColor(Fields.goalColor(percent), Graphics.COLOR_TRANSPARENT);
             dc.fillRectangle(x, y, filled, height);
         }
     }

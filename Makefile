@@ -3,6 +3,7 @@
 NAME    := mocha64-face
 DEVICE  ?= fenix6pro
 JUNGLE  := monkey.jungle
+TEST_JUNGLE := monkey.jungle;monkey.test.jungle
 KEY     ?= $(HOME)/.Garmin/ConnectIQ/developer_key.der
 APP     := bin/$(NAME).prg
 IQ      := bin/$(NAME).iq
@@ -38,7 +39,7 @@ sim:
 
 test:
 	@mkdir -p bin
-	$(MONKEYC) -f $(JUNGLE) -d $(DEVICE) -o $(APP) -y $(KEY) -w -l 2 --unit-test
+	$(MONKEYC) -f "$(TEST_JUNGLE)" -d $(DEVICE) -o $(APP) -y $(KEY) -w -l 2 --unit-test
 	$(MONKEYDO) $(APP) $(DEVICE) -t
 
 package:

@@ -60,13 +60,35 @@ module FieldsTest {
     }
 
     (:test)
-    function formatDateIsUppercaseAndPadded(logger as Logger) as Boolean {
-        return Fields.formatDate(7, 25, 7).equals("SAT 25 JUL");
+    function formatDayNameIsUppercaseAndThreeLetters(logger as Logger) as Boolean {
+        return Fields.formatDayName(7).equals("SAT")
+            && Fields.formatDayName(1).equals("SUN");
     }
 
     (:test)
-    function formatDateHandlesFirstOfJanuary(logger as Logger) as Boolean {
-        return Fields.formatDate(1, 1, 1).equals("SUN 01 JAN");
+    function formatDayMonthPadsBothPartsToTwoDigits(logger as Logger) as Boolean {
+        return Fields.formatDayMonth(26, 7).equals("26.07")
+            && Fields.formatDayMonth(1, 1).equals("01.01");
+    }
+
+    // Days-remaining is the number worth acting on; it must round DOWN so a
+    // watch reading 6d never dies partway through day 6.
+    (:test)
+    function batteryDaysRoundsDownAgainstFullRuntime(logger as Logger) as Boolean {
+        return Fields.batteryDays(100.0) == 14
+            && Fields.batteryDays(50.0) == 7
+            && Fields.batteryDays(99.0) == 13;
+    }
+
+    (:test)
+    function batteryDaysBottomsOutAtZero(logger as Logger) as Boolean {
+        return Fields.batteryDays(3.0) == 0
+            && Fields.batteryDays(0.0) == 0;
+    }
+
+    (:test)
+    function formatBatteryReadsInDaysNotPercent(logger as Logger) as Boolean {
+        return Fields.formatBattery(50.0).equals("7d");
     }
 
     (:test)
@@ -85,7 +107,7 @@ module FieldsTest {
 
     (:test)
     function goalColorChangesOnCompletion(logger as Logger) as Boolean {
-        return Fields.goalColor(99) == Palette.DATA
+        return Fields.goalColor(99) == Palette.VALUE
             && Fields.goalColor(100) == Palette.FILL_OK;
     }
 
