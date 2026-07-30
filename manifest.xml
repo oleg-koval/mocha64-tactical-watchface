@@ -4,11 +4,14 @@
         entry="MochaFaceApp"
         id="ccce140e5300403e94121037d9ff3c05"
         launcherIcon="@Drawables.LauncherIcon"
-        minApiLevel="3.1.0"
+        minApiLevel="3.2.0"
         name="@Strings.AppName"
         type="watchface">
         <iq:products>
             <iq:product id="fenix6pro"/>
+            <iq:product id="fr255"/>
+            <iq:product id="fr255m"/>
+            <iq:product id="fr955"/>
         </iq:products>
         <iq:permissions>
             <iq:uses-permission id="SensorHistory"/>
