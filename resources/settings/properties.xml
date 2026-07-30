@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<properties>
+  <!-- The four rows of the recovery column, top to bottom. Defaults reproduce
+       exactly what the face showed before it was configurable. -->
+  <property id="slot1" type="number">3</property>
+  <property id="slot2" type="number">1</property>
+  <property id="slot3" type="number">10</property>
+  <property id="slot4" type="number">9</property>
+</properties>

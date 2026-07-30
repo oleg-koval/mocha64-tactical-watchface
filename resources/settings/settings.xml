@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<settings>
+  <setting propertyKey="@Properties.slot1" title="@Strings.Slot1Title">
+    <settingConfig type="list">
+        <listEntry value="0">@Strings.Metric0</listEntry>
+        <listEntry value="1">@Strings.Metric1</listEntry>
+        <listEntry value="2">@Strings.Metric2</listEntry>
+        <listEntry value="3">@Strings.Metric3</listEntry>
+        <listEntry value="4">@Strings.Metric4</listEntry>
+        <listEntry value="5">@Strings.Metric5</listEntry>
+        <listEntry value="6">@Strings.Metric6</listEntry>
+        <listEntry value="7">@Strings.Metric7</listEntry>
+        <listEntry value="8">@Strings.Metric8</listEntry>
+        <listEntry value="9">@Strings.Metric9</listEntry>
+        <listEntry value="10">@Strings.Metric10</listEntry>
+        <listEntry value="11">@Strings.Metric11</listEntry>
+        <listEntry value="12">@Strings.Metric12</listEntry>
+        <listEntry value="13">@Strings.Metric13</listEntry>
+        <listEntry value="14">@Strings.Metric14</listEntry>
+        <listEntry value="15">@Strings.Metric15</listEntry>
+    </settingConfig>
+  </setting>
+  <setting propertyKey="@Properties.slot2" title="@Strings.Slot2Title">
+    <settingConfig type="list">
+        <listEntry value="0">@Strings.Metric0</listEntry>
+        <listEntry value="1">@Strings.Metric1</listEntry>
+        <listEntry value="2">@Strings.Metric2</listEntry>
+        <listEntry value="3">@Strings.Metric3</listEntry>
+        <listEntry value="4">@Strings.Metric4</listEntry>
+        <listEntry value="5">@Strings.Metric5</listEntry>
+        <listEntry value="6">@Strings.Metric6</listEntry>
+        <listEntry value="7">@Strings.Metric7</listEntry>
+        <listEntry value="8">@Strings.Metric8</listEntry>
+        <listEntry value="9">@Strings.Metric9</listEntry>
+        <listEntry value="10">@Strings.Metric10</listEntry>
+        <listEntry value="11">@Strings.Metric11</listEntry>
+        <listEntry value="12">@Strings.Metric12</listEntry>
+        <listEntry value="13">@Strings.Metric13</listEntry>
+        <listEntry value="14">@Strings.Metric14</listEntry>
+        <listEntry value="15">@Strings.Metric15</listEntry>
+    </settingConfig>
+  </setting>
+  <setting propertyKey="@Properties.slot3" title="@Strings.Slot3Title">
+    <settingConfig type="list">
+        <listEntry value="0">@Strings.Metric0</listEntry>
+        <listEntry value="1">@Strings.Metric1</listEntry>
+        <listEntry value="2">@Strings.Metric2</listEntry>
+        <listEntry value="3">@Strings.Metric3</listEntry>
+        <listEntry value="4">@Strings.Metric4</listEntry>
+        <listEntry value="5">@Strings.Metric5</listEntry>
+        <listEntry value="6">@Strings.Metric6</listEntry>
+        <listEntry value="7">@Strings.Metric7</listEntry>
+        <listEntry value="8">@Strings.Metric8</listEntry>
+        <listEntry value="9">@Strings.Metric9</listEntry>
+        <listEntry value="10">@Strings.Metric10</listEntry>
+        <listEntry value="11">@Strings.Metric11</listEntry>
+        <listEntry value="12">@Strings.Metric12</listEntry>
+        <listEntry value="13">@Strings.Metric13</listEntry>
+        <listEntry value="14">@Strings.Metric14</listEntry>
+        <listEntry value="15">@Strings.Metric15</listEntry>
+    </settingConfig>
+  </setting>
+  <setting propertyKey="@Properties.slot4" title="@Strings.Slot4Title">
+    <settingConfig type="list">
+        <listEntry value="0">@Strings.Metric0</listEntry>
+        <listEntry value="1">@Strings.Metric1</listEntry>
+        <listEntry value="2">@Strings.Metric2</listEntry>
+        <listEntry value="3">@Strings.Metric3</listEntry>
+        <listEntry value="4">@Strings.Metric4</listEntry>
+        <listEntry value="5">@Strings.Metric5</listEntry>
+        <listEntry value="6">@Strings.Metric6</listEntry>
+        <listEntry value="7">@Strings.Metric7</listEntry>
+        <listEntry value="8">@Strings.Metric8</listEntry>
+        <listEntry value="9">@Strings.Metric9</listEntry>
+        <listEntry value="10">@Strings.Metric10</listEntry>
+        <listEntry value="11">@Strings.Metric11</listEntry>
+        <listEntry value="12">@Strings.Metric12</listEntry>
+        <listEntry value="13">@Strings.Metric13</listEntry>
+        <listEntry value="14">@Strings.Metric14</listEntry>
+        <listEntry value="15">@Strings.Metric15</listEntry>
+    </settingConfig>
+  </setting>
+</settings>

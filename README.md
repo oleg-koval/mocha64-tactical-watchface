@@ -1,10 +1,10 @@
 # MOCHA-64 Tactical
 
-> A military instrument panel for your body. Tactical HUD watch face for the Garmin Fenix 6 Pro.
+> A military instrument panel for your body. Tactical HUD watch face for fenix and Forerunner.
 
 [![CI](https://github.com/oleg-koval/mocha64-tactical-watchface/actions/workflows/ci.yml/badge.svg)](https://github.com/oleg-koval/mocha64-tactical-watchface/actions/workflows/ci.yml)
 [![Connect IQ](https://img.shields.io/badge/Connect%20IQ-3.1%2B-007cc3)](https://developer.garmin.com/connect-iq/)
-[![Device](https://img.shields.io/badge/device-fenix%206%20Pro-333)](https://www.garmin.com/en-US/p/641479)
+[![Devices](https://img.shields.io/badge/devices-8-333)](./manifest.xml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 
 Military legibility — brackets, mono type, hard rules — pointed at recovery and training
@@ -25,10 +25,9 @@ instrument panel for the body.
 Time is always 24-hour and ignores the system 12/24h setting — deliberately. A military
 instrument that renders `2:05 PM` is a different design.
 
-> **Status: in development.** The layout above is the design target. The palette and pure
-> logic modules are implemented and unit-tested; the full HUD layout is not yet built, and
-> nothing has been compiled against the SDK yet. Not published to the Connect IQ Store.
-> See [the spec](./docs/superpowers/specs/2026-07-25-fenix6-hud-watchface-design.md).
+> **Status: feature complete, not yet published.** The HUD is built and renders on
+> every declared product; 48 unit tests cover the pure layout and formatting logic.
+> Store listing copy is in [docs/store/listing.md](./docs/store/listing.md).
 
 ## Install
 

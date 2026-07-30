@@ -1,4 +1,11 @@
+from pathlib import Path
+
 from PIL import Image, ImageDraw, ImageFont
+
+# Resolve beside this file, not against the working directory: run from
+# the repo root, a bare "face-tight.png" silently misses and the hero
+# saves with an empty right-hand panel.
+HERE = Path(__file__).resolve().parent
 
 W, H = 1440, 720
 
@@ -52,11 +59,11 @@ for i, (name, col) in enumerate([("READY", READY), ("CAUTION", CAUTION), ("STRAI
     d.rectangle([bx, ly, bx + 26, ly + 26], fill=col)
     d.text((bx + 38, ly + 2), name, font=font(22), fill=LABEL)
 
-d.text((x, 604), "fenix 6 Pro  |  64-colour palette, re-derived", font=font(22), fill=RULE)
+d.text((x, 604), "four readings  |  on-watch settings", font=font(22), fill=RULE)
 
 # Watch face render on the right.
 try:
-    face = Image.open("face-tight.png").convert("RGB")
+    face = Image.open(HERE / "face-tight.png").convert("RGB")
     size = 470
     face = face.resize((size, size), Image.LANCZOS)
     mask = Image.new("L", (size, size), 0)
@@ -65,7 +72,7 @@ try:
     d.ellipse([fx - 14, fy - 14, fx + size + 14, fy + size + 14], outline=RULE, width=2)
     im.paste(face, (fx, fy), mask)
 except Exception as e:
-    print("face image missing:", e)
+    raise SystemExit(f"face-tight.png unreadable: {e}")
 
-im.save("hero-1440x720.png")
+im.save(HERE / "hero-1440x720.png")
 print("saved", im.size)

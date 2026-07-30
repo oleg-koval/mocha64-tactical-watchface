@@ -1,4 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
   <string id="AppName">MOCHA-64 Tactical</string>
+
+    <string id="Metric0">Off</string>
+    <string id="Metric1">Heart rate</string>
+    <string id="Metric2">Steps</string>
+    <string id="Metric3">Body Battery</string>
+    <string id="Metric4">Battery</string>
+    <string id="Metric5">Calories</string>
+    <string id="Metric6">Distance</string>
+    <string id="Metric7">Floors (stairs)</string>
+    <string id="Metric8">Active minutes</string>
+    <string id="Metric9">Stress</string>
+    <string id="Metric10">Resting HR</string>
+    <string id="Metric11">Notifications</string>
+    <string id="Metric12">Altitude</string>
+    <string id="Slot1Title">Data slot 1</string>
+    <string id="Slot2Title">Data slot 2</string>
+    <string id="Slot3Title">Data slot 3</string>
+    <string id="Slot4Title">Data slot 4</string>
+    <string id="Metric13">Battery (days)</string>
+  <string id="Metric14">Sleep score</string>
+  <string id="Metric15">Date</string>
 </resources>

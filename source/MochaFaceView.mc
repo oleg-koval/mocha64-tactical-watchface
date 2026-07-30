@@ -104,24 +104,43 @@ class MochaFaceView extends WatchUi.WatchFace {
         );
     }
 
+    // Four configurable rows.
+    //
+    // Nothing here knows what a heart rate is any more: the slot names the
+    // metric, Metrics reads and formats it, and this function only places it.
+    // Adding a metric touches Metrics alone.
     private function drawRecoveryColumn(dc as Dc, step as Number) as Void {
-        var bodyBattery = Sensors.bodyBattery();
-        var stressLevel = Sensors.stress();
-        var heartRate = Sensors.currentHeartRate();
-        var resting = Sensors.restingHeartRate();
+        for (var i = 0; i < Settings.SLOT_COUNT; i += 1) {
+            var id = Settings.slots[i];
+            Hud.metricRow(dc, Layout.columnY(i, step),
+                Metrics.label(id), slotText(id), slotColor(id));
+        }
+    }
 
-        Hud.metricRow(dc, Layout.columnY(0, step), "BODY", Fields.formatMetric(bodyBattery),
-            bodyBattery == null ? Palette.RULE : Fields.bodyBatteryColor(bodyBattery));
+    // An empty slot draws blank rather than as a zero. A zero is a reading
+    // that happens to be wrong; blank is honestly "nothing to report".
+    private function slotText(id as Number) as String {
+        var text = Metrics.text(id);
+        return text == null ? "--" : text;
+    }
 
-        Hud.metricRow(dc, Layout.columnY(1, step), "HR", Fields.formatMetric(heartRate),
-            heartRate == null ? Palette.RULE : Palette.DATA);
+    // Colour still carries meaning per metric, but only where it earns it:
+    // a body battery or a stress level is a state worth reading at a glance,
+    // whereas resting heart rate is a reference line and stays plain.
+    private function slotColor(id as Number) as Number {
+        if (Metrics.text(id) == null) { return Palette.RULE; }
+        // STRAIN is this palette's alarm colour; there is no separate ALERT.
+        if (Metrics.isCritical(id)) { return Palette.STRAIN; }
 
-        // Resting HR is a reference line, not a live state, so it stays plain.
-        Hud.metricRow(dc, Layout.columnY(2, step), "REST", Fields.formatMetric(resting),
-            resting == null ? Palette.RULE : Palette.VALUE);
-
-        Hud.metricRow(dc, Layout.columnY(3, step), "STRESS", Fields.formatMetric(stressLevel),
-            stressLevel == null ? Palette.RULE : Fields.stressColor(stressLevel));
+        var m = Metrics.normalize(id);
+        if (m == Metrics.BODY_BATTERY) {
+            return Fields.bodyBatteryColor(Metrics.value(id) as Number);
+        }
+        if (m == Metrics.STRESS) {
+            return Fields.stressColor(Metrics.value(id) as Number);
+        }
+        if (m == Metrics.HEART_RATE) { return Palette.DATA; }
+        return Palette.VALUE;
     }
 
     private function drawActivity(
