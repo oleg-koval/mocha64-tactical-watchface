@@ -1,8 +1,19 @@
 project.manifest = manifest.xml
 
-base.sourcePath = source;tests
+# Complications (and therefore sleep score) arrived in API 4.2.0. The
+# compiler resolves the symbol at build time, so a `has` guard is not
+# enough -- capable devices get the real module, everyone else a stub.
+base.sourcePath = source;source-nosleep;tests
 base.resourcePath = resources
 base.excludeAnnotations = test
 
 fenix6pro.sourcePath = $(base.sourcePath)
 fenix6pro.resourcePath = $(base.resourcePath)
+
+fenix7.sourcePath = source;source-sleep;tests
+fenix7pro.sourcePath = source;source-sleep;tests
+fenix7pronowifi.sourcePath = source;source-sleep;tests
+fenix8solar47mm.sourcePath = source;source-sleep;tests
+fr255.sourcePath = source;source-sleep;tests
+fr255m.sourcePath = source;source-sleep;tests
+fr955.sourcePath = source;source-sleep;tests
