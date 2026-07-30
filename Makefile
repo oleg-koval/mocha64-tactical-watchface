@@ -37,10 +37,17 @@ sim:
 	@sleep 4
 	$(MONKEYDO) $(APP) $(DEVICE)
 
+# monkeydo exits NON-ZERO even when every test passes, so its status cannot
+# be trusted -- chaining `make test` into anything else fails on a green run.
+# The result line is the only reliable signal, so it is asserted directly. A
+# run that produces no result line at all (simulator down, monkeydo wedged)
+# also fails here, which is the behaviour you want.
 test:
 	@mkdir -p bin
 	$(MONKEYC) -f "$(TEST_JUNGLE)" -d $(DEVICE) -o $(APP) -y $(KEY) -w -l 2 --unit-test
-	$(MONKEYDO) $(APP) $(DEVICE) -t
+	@set -o pipefail; $(MONKEYDO) $(APP) $(DEVICE) -t 2>&1 | tee bin/test.log; \
+		grep -qE "^PASSED \(passed=[0-9]+, failed=0, errors=0\)" bin/test.log \
+		|| { echo "FAILED: no clean PASSED line -- see bin/test.log"; exit 1; }
 
 package:
 	@mkdir -p bin
