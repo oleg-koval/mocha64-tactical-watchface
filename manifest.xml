@@ -16,6 +16,9 @@
             <iq:product id="fr255"/>
             <iq:product id="fr255m"/>
             <iq:product id="fr955"/>
+            <iq:product id="fr970"/>
+            <iq:product id="fr965"/>
+            <iq:product id="fenix847mm"/>
         </iq:products>
         <iq:permissions>
             <iq:uses-permission id="SensorHistory"/>

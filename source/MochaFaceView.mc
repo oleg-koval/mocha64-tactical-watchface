@@ -13,6 +13,12 @@ class MochaFaceView extends WatchUi.WatchFace {
         WatchFace.initialize();
     }
 
+    // Resolve the layout for this screen. Reading it from the Dc rather than
+    // from a device name means a new product needs no code here.
+    function onLayout(dc as Dc) as Void {
+        Layout.init(dc.getWidth());
+    }
+
     function onUpdate(dc as Dc) as Void {
         dc.setColor(Palette.VALUE, Palette.BG);
         dc.clear();
