@@ -17,6 +17,14 @@ fenix8solar47mm.sourcePath = source;source-sleep;tests
 fr255.sourcePath = source;source-sleep;tests
 fr255m.sourcePath = source;source-sleep;tests
 fr955.sourcePath = source;source-sleep;tests
+# The 454x454 AMOLED products ask for a 65x65 launcher icon. Upscaling the
+# 40x40 turns a 2px corner bracket into a grey smear, so this one is drawn at
+# size by docs/store/make-icon.py. resources-65 is listed second so its
+# drawables win.
+fenix847mm.resourcePath = $(base.resourcePath);resources-65
+fr965.resourcePath = $(base.resourcePath);resources-65
+fr970.resourcePath = $(base.resourcePath);resources-65
+
 fenix847mm.sourcePath = source;source-sleep;tests
 fr965.sourcePath = source;source-sleep;tests
 fr970.sourcePath = source;source-sleep;tests

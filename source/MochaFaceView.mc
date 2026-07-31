@@ -9,6 +9,11 @@ import Toybox.WatchUi;
 
 class MochaFaceView extends WatchUi.WatchFace {
 
+    // Emissive panel that must not be left fully lit. Resolved once in
+    // onLayout, because it cannot change under a running face.
+    private var _burnInProtected as Boolean = false;
+    private var _sleeping as Boolean = false;
+
     function initialize() {
         WatchFace.initialize();
     }
@@ -17,9 +22,43 @@ class MochaFaceView extends WatchUi.WatchFace {
     // from a device name means a new product needs no code here.
     function onLayout(dc as Dc) as Void {
         Layout.init(dc.getWidth());
+        _burnInProtected = deviceNeedsAlwaysOn();
+    }
+
+    // requiresBurnInProtection is the only honest way to ask "is this an
+    // emissive panel that must not be left fully lit". It arrived after some
+    // supported products shipped and can read null on them, so both the symbol
+    // and its value are checked -- a null propagating into a Boolean field
+    // throws at the first wrist drop, which is the one moment nobody is
+    // watching the simulator.
+    private function deviceNeedsAlwaysOn() as Boolean {
+        var settings = System.getDeviceSettings();
+        if (!(settings has :requiresBurnInProtection)) { return false; }
+        var flag = settings.requiresBurnInProtection;
+        return flag != null && flag;
+    }
+
+    function onEnterSleep() as Void {
+        _sleeping = true;
+        // This is what actually swaps the frame -- without it the lit face
+        // stays on the panel until something else asks for an update.
+        if (_burnInProtected) { WatchUi.requestUpdate(); }
+    }
+
+    function onExitSleep() as Void {
+        _sleeping = false;
+        if (_burnInProtected) { WatchUi.requestUpdate(); }
     }
 
     function onUpdate(dc as Dc) as Void {
+        // On an emissive panel, a lowered wrist gets the restricted frame, not
+        // the HUD. One branch, before any drawing.
+        if (_sleeping && _burnInProtected) {
+            var aodClock = System.getClockTime();
+            Aod.draw(dc, aodClock.hour, aodClock.min);
+            return;
+        }
+
         dc.setColor(Palette.VALUE, Palette.BG);
         dc.clear();
 

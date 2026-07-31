@@ -14,10 +14,10 @@ aliasing into grey at this size.
 
     python3 docs/store/make-icon.py
 
-Every declared product is 260x260 and asks for a 40x40 icon, so there is only
-one size to write. Add more here if a different resolution is ever declared --
-and give each its own resourcePath in monkey.jungle rather than letting the
-compiler scale between them.
+Two sizes. Most declared products ask for 40x40; the 454x454 AMOLED group
+(Forerunner 965/970, fenix 8 47mm) asks for 65x65. Letting the compiler scale
+a 40 up to 65 turns a 2px bracket into a grey smear, so each is drawn at its
+own size and given its own resourcePath in monkey.jungle.
 """
 
 from pathlib import Path
@@ -75,10 +75,12 @@ def render(size=40):
 
 
 def main():
-    icon = render(40)
-    path = ROOT / "resources" / "drawables" / "launcher_icon.png"
-    icon.save(path)
-    print(f"wrote resources/drawables/launcher_icon.png {icon.size}")
+    for size, target in ((40, "resources"), (65, "resources-65")):
+        icon = render(size)
+        path = ROOT / target / "drawables" / "launcher_icon.png"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        icon.save(path)
+        print(f"wrote {target}/drawables/launcher_icon.png {icon.size}")
 
 
 if __name__ == "__main__":
